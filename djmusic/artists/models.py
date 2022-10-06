@@ -1,3 +1,10 @@
 from django.db import models
+from django.db.models import F
 
-# Create your models here.
+class Artist(models.Model):
+  stage_name = models.CharField(max_length=200, unique=True, blank=False)
+  # TextField has null=False by default
+  social_link = models.TextField(blank=True)
+  
+  class Meta:
+    ordering = ['stage_name']
