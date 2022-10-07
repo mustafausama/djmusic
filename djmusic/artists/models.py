@@ -6,5 +6,8 @@ class Artist(models.Model):
   # TextField has null=False by default
   social_link = models.TextField(blank=True)
   
+  def __str__(self):
+    return self.stage_name
+  
   class Meta:
     ordering = ['stage_name']
