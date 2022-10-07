@@ -136,22 +136,19 @@ We apply queries for listing down the albums as required:
 
 - In 2 different ways, for each artist, list down all of his/her albums
 
-  ```sql
-  select
-    artists_artist.stage_name,
-    count(albums_album.id)
-  from artists_artist
-  left join
-    albums_album on
-    albums_album.artist_id = artists_artist.id
-  group by artists_artist.stage_name;
-  ```
-
   ```python
-  >>> Album.objects.values('artist').annotate(Count('id'))
-  <QuerySet [{'artist': 1, 'id__count': 2}, {'artist': 2, 'id__count': 1}]>
+  >>> from django.db.models import Count
+  >>> Album.objects.values('artist').annotate(album_count=Count('id'))
+  <QuerySet [{'artist': 1, 'album_count': 2}, {'artist': 2, 'album_count': 1}]>
 
-
+  >>> [
+  ...   {
+  ...     'artist': artist.id,
+  ...     'album_count': artist.album_set.count()
+  ...   }
+  ...   for artist in Artist.objects.all()
+  ... ]
+  [{'artist': 2, 'album_count': 1}, {'artist': 1, 'album_count': 2}]
   ```
 
 - List down all albums ordered by cost then by name
