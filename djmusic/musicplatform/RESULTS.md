@@ -149,6 +149,16 @@ We apply queries for listing down the albums as required:
   ...   for artist in Artist.objects.all()
   ... ]
   [{'artist': 2, 'album_count': 1}, {'artist': 1, 'album_count': 2}]
+
+  >>> # Update on 09/10/2022
+  >>> [
+  ...   {
+  ...     'artist': artist.id,
+  ...     'album_count': artist.num_albums
+  ...   }
+  ...   for artist in Artist.objects.annotate(num_albums=Count('album'))
+  ... ]
+  [{'artist': 2, 'album_count': 1}, {'artist': 1, 'album_count': 2}]
   ```
 
 - List down all albums ordered by cost then by name
