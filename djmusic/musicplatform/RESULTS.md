@@ -1,4 +1,12 @@
-# Steps taken in populating djMusic database
+# Steps taken in populating and testing djMusic database
+
+## [Part 1](#first-part)
+
+## [Part 2](#second-part)
+
+<hr>
+
+# First Part
 
 ## Importing models
 
@@ -9,7 +17,7 @@ from albums.models import Album
 from artists.models import Artist
 ```
 
-## Creating sample Artists and Albums
+## Creating sample Artists
 
 We then create two sample artists with stage names: **Cassandra** and **Asphodel** (with an empty social link)
 
@@ -27,6 +35,8 @@ asphodel = Artist(
 cassandra.save()
 asphodel.save()
 ```
+
+## Testing Artist model queries
 
 We apply queries for listing down the artists as required:
 
@@ -55,6 +65,8 @@ We apply queries for listing down the artists as required:
   >>> Artist.objects.filter(stage_name__startswith='A')
   <QuerySet [<Artist: Asphodel>]>
   ```
+
+## Creating sample Albums
 
 We also, after importing datetime libraries, create 3 sample albums associated with the created artists:
 
@@ -96,6 +108,8 @@ by_the_seaside = Album(
 
 by_the_seaside.save()
 ```
+
+## Testing Album model queries
 
 We apply queries for listing down the albums as required:
 
@@ -166,3 +180,67 @@ We apply queries for listing down the albums as required:
   >>> Album.objects.order_by('cost', 'album_name')
   <QuerySet [<Album: On the road>, <Album: Along the Way>, <Album: By the Seaside>]>
   ```
+
+<hr>
+
+# Second Part
+
+## Approved albums
+
+An **is_approved** boolean field was added to the Album Model with a default value of **False**.
+
+```python
+class Album(models.Model):
+  ...
+  is_approved = models.BooleanField(default=False)
+```
+
+## Ordering by number of approved albums
+
+In order to show a **approved_albums** count column for each artist in the default Artist QuerSet, a Custom manager has been used to modify the default QuerySet in order to **annotate** for a new column named **approved_albums** that has the count of **Album.is_approved** with a filter applied to only count the True values.
+
+```python
+class ArtistManager(models.Manager):
+  def get_queryset(self):
+    return super().get_queryset().annotate(approved_albums=Count('album__is_approved', filter=Q(album__is_approved=True)))
+
+class Artist(models.Model):
+  objects = ArtistManager()
+  ...
+```
+
+Now, the Artist.objects.all() returns a QuerySet of all artists with an additional column **approved_albums** that contains the number of approved albums each artist.
+
+We can now order the artists by the number of approved albums.
+
+- First let's add a new album that is approved
+
+  ```python
+  >>> from artists.models import Artist
+  >>> from albums.models import Album
+  >>> from django.utils import timezone
+  approved_album = Album(
+    artist=Artist.objects.get(stage_name='Cassandra'),
+    album_name='Appropriate name',
+    released_at = timezone.now(),
+    cost=39.95,
+    is_approved=True
+    )
+  approved_album.save()
+  ```
+
+Get all artists ordered by their number of approved albums ascendingly and descendingly
+
+```python
+>>> Artist.objects.order_by('approved_albums')
+<QuerySet [<Artist: Asphodel>, <Artist: Cassandra>]>
+
+>>> Artist.objects.order_by('-approved_albums')
+<QuerySet [<Artist: Cassandra>, <Artist: Asphodel>]>
+
+# Show the number of approved albums for Cassandra and Asphodel
+>>> Artist.objects.get(stage_name='Cassandra').approved_albums
+1
+>>> Artist.objects.get(stage_name='Asphodel').approved_albums
+0
+```
