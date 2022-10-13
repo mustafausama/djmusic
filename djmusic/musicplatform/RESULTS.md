@@ -195,9 +195,54 @@ class Album(models.Model):
   is_approved = models.BooleanField(default=False)
 ```
 
-## Ordering by number of approved albums
+## Add all the models to django admin
 
-In order to show a **approved_albums** count column for each artist in the default Artist QuerSet, a Custom manager has been used to modify the default QuerySet in order to **annotate** for a new column named **approved_albums** that has the count of **Album.is_approved** with a filter applied to only count the True values.
+The twol models that we have should be registered by the django admin site using the following methods:
+
+- Editing _djmusic/albums/admin.py_
+
+  ```python
+  @admin.register(Album)
+  class AlbumAdmin(admin.ModelAdmin):
+    ...
+  ```
+
+- Editing _djmusic/artists/admin.py_
+  ```python
+  @admin.register(Artist)
+  class ArtistAdmin(admin.ModelAdmin):
+    ...
+  ```
+
+## Creation time should be read-only
+
+By adding the **created_at** field in the **readonly_fields** field of the Album, we specify that the created_at field should be read-only and cannot be changed by the admin as shown in the screenshot:
+<br>
+![](result-images/2022-10-14-00-35-34.png)
+
+## Album approval help text
+
+A help text was added to the **Is Approved** field in the Album edit and creation forms as shown in the screenshit above. This was done by overriding the default form field of the **AlbumAdmin** ModelAdmin and adding a help text to that specific **Is Approved** field.
+
+```python
+from django.utils.translation import gettext_lazy as _
+class AlbumForm(forms.ModelForm):
+  class Meta:
+    model = Album
+    exclude = []
+    help_texts = {
+      'is_approved': _('Approve the album if its name is not explicit')
+    }
+
+@admin.register(Album)
+class AlbumAdmin(admin.ModelAdmin):
+  form = AlbumForm
+  ...
+```
+
+## Number of approved albums
+
+In order to show a **approved_albums** count column for each artist in the default Artist QuerSet, a custom manager was used to modify the default QuerySet in order to **annotate** for a new column named **approved_albums** that has the count of **Album.is_approved** with a filter applied to only count the True values.
 
 ```python
 class ArtistManager(models.Manager):
@@ -209,25 +254,65 @@ class Artist(models.Model):
   ...
 ```
 
+That column can now be used in the ArtistAdmin ModelAdmin by modifying, the **fieldsets** attribute, to show the number of approved albums. Similarly, we can add the number of albums for each artist.
+
+```python
+@admin.register(Artist)
+class ArtistAdmin(admin.ModelAdmin):
+  ...
+  list_display = ('stage_name', 'albums', 'approved_albums')
+  fieldsets = (
+    ...
+    (None, {
+      'fields': ('albums',),
+      'description': 'Number of albums beloning to this artist'
+    }),
+    (None, {
+      'fields': ('approved_albums',),
+      'description': 'Number of approved albums for this artist'
+    })
+  )
+
+  def albums(self, obj):
+    return obj.album_set.count()
+
+  def approved_albums(self, obj):
+    return obj.approved_albums
+
+```
+
+This results in a artist admin page as in the following screenshot
+
+<br>
+
+![](result-images/2022-10-14-00-47-20.png)
+
+## Order by approved albums
+
 Now, the Artist.objects.all() returns a QuerySet of all artists with an additional column **approved_albums** that contains the number of approved albums each artist.
 
 We can now order the artists by the number of approved albums.
 
-- First let's add a new album that is approved
+<details>
+<summary>If we have not already, we add a new album that is approved</summary>
 
-  ```python
-  >>> from artists.models import Artist
-  >>> from albums.models import Album
-  >>> from django.utils import timezone
-  approved_album = Album(
-    artist=Artist.objects.get(stage_name='Cassandra'),
-    album_name='Appropriate name',
-    released_at = timezone.now(),
-    cost=39.95,
-    is_approved=True
-    )
-  approved_album.save()
-  ```
+```python
+>>> from artists.models import Artist
+>>> from albums.models import Album
+>>> from django.utils import timezone
+approved_album = Album(
+  artist=Artist.objects.get(stage_name='Cassandra'),
+  album_name='Appropriate name',
+  released_at = timezone.now(),
+  cost=39.95,
+  is_approved=True
+  )
+approved_album.save()
+```
+
+</details>
+
+<br>
 
 Get all artists ordered by their number of approved albums ascendingly and descendingly
 
@@ -243,4 +328,26 @@ Get all artists ordered by their number of approved albums ascendingly and desce
 1
 >>> Artist.objects.get(stage_name='Asphodel').approved_albums
 0
+```
+
+## Allow admin to create albums within each artist page
+
+This behavior can be achieved by adding a **admin.TabularInline** custom class to the **inlines** attribute of the **ArtistAdmin** ModelAdmin as follows:
+
+> Here we use the **AlbumForm** custom ModelForm to apply the help text for the **Is Approved** field
+
+```python
+class AlbumInline(admin.TabularInline):
+  model = Album
+  readonly_fields = ('created_at',)
+  extra = 0
+  form = AlbumForm
+
+
+@admin.register(Artist)
+class ArtistAdmin(admin.ModelAdmin):
+  inlines = [
+    AlbumInline
+  ]
+  ...
 ```
