@@ -240,6 +240,24 @@ class AlbumAdmin(admin.ModelAdmin):
   ...
 ```
 
+## Album approval action
+
+An action was added to approve multiple albums at once while viewing the albums list.
+
+```python
+class AlbumAdmin(admin.ModelAdmin):
+  ...
+  @admin.action(description='Mark selected albums as approved')
+  def make_approved(self, request, queryset):
+    updated = queryset.update(is_approved=True)
+    self.message_user(request, ngettext(
+      "%d album was successfully approved",
+      "%d albums were successfully approved", updated) % updated, messages.SUCCESS)
+```
+
+This creates a new action item in the album list admin view as in the following screenshot:
+![](result-images/2022-10-14-17-56-16.png)
+
 ## Number of approved albums
 
 In order to show a **approved_albums** count column for each artist in the default Artist QuerSet, a custom manager was used to modify the default QuerySet in order to **annotate** for a new column named **approved_albums** that has the count of **Album.is_approved** with a filter applied to only count the True values.
