@@ -10,7 +10,7 @@ Final application is deplyed on heroku
 
 ## Results documentation
 
-The development steps and their results are documented in the file [remote RESULTS.md](-/blob/main/djmusic/musicplatform/RESULTS.md) or [local RESULTS.md](djmusic/musicplatform/RESULTS.md)
+The development steps and their results are documented in the file [RESULTS.md](djmusic/musicplatform/RESULTS.md)
 
 ## App installation
 
