@@ -18,8 +18,8 @@ class AlbumAdmin(admin.ModelAdmin):
   form = AlbumForm
 
   list_display = ('album_name', 'is_approved')
-  fields = (('album_name', 'artist'), ('released_at', 'created_at'), 'cost', 'is_approved')
-  readonly_fields = ('created_at',)
+  fields = (('album_name', 'artist'), ('released_at', 'created'), 'cost', 'is_approved', 'modified')
+  readonly_fields = ('created', 'modified')
 
   actions = ['make_approved']
   actions_selection_counter = True

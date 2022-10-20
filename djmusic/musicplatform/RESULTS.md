@@ -83,7 +83,7 @@ from django.utils import timezone
 on_the_road = Album(
   artist=cassandra,
   album_name='On the road',
-  created_at = timezone.now() - datetime.timedelta(days=15),
+  created = timezone.now() - datetime.timedelta(days=15),
   released_at = timezone.now() - datetime.timedelta(days=10),
   cost=39.95
   )
@@ -93,7 +93,7 @@ on_the_road.save()
 along_the_way = cassandra.album_set.create(
   artist=cassandra,
   album_name='Along the Way',
-  created_at = timezone.now() - datetime.timedelta(days=5),
+  created = timezone.now() - datetime.timedelta(days=5),
   released_at = timezone.now(),
 
   cost=59.99
@@ -216,7 +216,7 @@ The twol models that we have should be registered by the django admin site using
 
 ## Creation time should be read-only
 
-By adding the **created_at** field in the **readonly_fields** field of the Album, we specify that the created_at field should be read-only and cannot be changed by the admin as shown in the screenshot:
+By adding the **created** field in the **readonly_fields** field of the Album, we specify that the created field should be read-only and cannot be changed by the admin as shown in the screenshot:
 <br>
 ![](result-images/2022-10-14-00-35-34.png)
 
@@ -357,7 +357,7 @@ This behavior can be achieved by adding a **admin.TabularInline** custom class t
 ```python
 class AlbumInline(admin.TabularInline):
   model = Album
-  readonly_fields = ('created_at',)
+  readonly_fields = ('created',)
   extra = 0
   form = AlbumForm
 

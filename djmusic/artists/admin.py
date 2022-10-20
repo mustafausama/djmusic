@@ -5,7 +5,7 @@ from albums.admin import AlbumForm
 
 class AlbumInline(admin.TabularInline):
   model = Album
-  readonly_fields = ('created_at',)
+  readonly_fields = ('created', 'modified')
   extra = 0
   form = AlbumForm
 
