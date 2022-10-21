@@ -34,13 +34,11 @@ class ArtistList(generic.ListView):
   
   # Get all albums grouped and ordered by artists in one SQL query
   def get_queryset(self):
-    # Selection with join then annotate and select values
+    # Selection with join
     return \
       Artist.objects.all().prefetch_related('album_set').order_by('id') \
       .values('id', 'stage_name', 'social_link', 'album__id', 'album__album_name', 'album__created', 'album__released_at', 'album__cost')
-  
-    # return Album.objects.order_by('artist').annotate(stage=F('artist__stage_name'), social=F('artist__social_link'), album=F('album_name')).values('stage', 'artist_id', 'social', 'id', 'album', 'created', 'released_at', 'cost')
-  
+    
   def get_context_data(self,**kwargs):
     context = super().get_context_data(**kwargs)
     data_list = list(context['artists_albums'])
