@@ -10,7 +10,6 @@
           <li><strong>Name</strong>: {{album.album__album_name}}</li>
           <li><strong>Creation Time</strong>: {{album.album__created|date:'SHORT_DATETIME_FORMAT'}}</li>
           <li><strong>Release datetime</strong>: {{album.album__released_at|date:'SHORT_DATETIME_FORMAT'}}</li>
-          {% load humanize %}
           <li><strong>Cost</strong>: ${{album.album__cost}}</li>
           {% if value.albums|length > forloop.counter %}<li>---</li>{% endif %}
         {% endfor %}
