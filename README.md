@@ -2,6 +2,8 @@
 
 ## Demo application
 
+**Demo application has the second part only**
+
 Final application is deplyed on heroku
 [Admin Link](https://djmusic-django.herokuapp.com/admin)
 
@@ -111,3 +113,19 @@ Now visit [http://localhost:8000](http://localhost:8000) or [http://localhost:80
 
 You can visit the admin panel using this link [http://localhost:8000/admin](http://localhost:8000/admin)
 Now you can login using the credentials you created in the [previous section](#create-a-superuser)
+
+## App Usage
+
+### Creating Artists and Albums
+
+Artists and albums can be created using the following links, repectively.
+
+**Artist**: [http://localhost:8000/artists/create/](http://localhost:8000/artists/create/)
+
+**Album**: [http://localhost:8000/albums/create/](http://localhost:8000/albums/create/)
+
+### Artist list view
+
+A list view of the artists and their respective albums can be viewed using the following link.
+
+**List View**: [http://localhost:8000/artists/](http://localhost:8000/artists/)

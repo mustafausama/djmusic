@@ -4,6 +4,8 @@
 
 ## [Part 2](#second-part)
 
+## [Part 2](#third-part)
+
 <hr>
 
 # First Part
@@ -369,3 +371,94 @@ class ArtistAdmin(admin.ModelAdmin):
   ]
   ...
 ```
+
+# Second Part
+
+In the third part of the application, two forms were added allowing the user to create artists and albums.
+A slight modification was done to the Album model in order to timestamp it.
+
+## Album model timestamp
+
+The Album model now inherits from **TimeStampedModel** which adds **created** and **modified** fields that are filled automatically based on every change in the database and according to the timezone.
+
+## Artist and Album creation form
+
+Two creation forms were made available for the user to fill and create a new Artist or Album.  
+First, two forms were created that inherit the django Form class.
+
+```python
+# artists/forms.py
+class CreateArtistForm(forms.Form):
+  stage_name = forms.CharField(label='Stage Name', max_length=200)
+  social_link = forms.CharField(label="Social Link", required=False)
+...
+# albums/forms.py
+class CreateAlbumForm(forms.ModelForm):
+  class Meta:
+    model = Album
+    fields = ['artist', 'album_name', 'released_at', 'cost']
+    widgets = {
+      'released_at': forms.DateTimeInput(attrs={'type': 'datetime-local'})
+    }
+```
+
+Then, the forms were used in the view of the url pattern **'/artists/create'**, **'/albums/create'**, respectively, in 3 different ways.
+
+- If it is the first time to visit the form page, the form will be empty expecting the used to enter a new artist or album data.
+- If the page is visited after a submit button was clicked (POST request), the data is validated and leads to either of the following situations:
+  - If the validation succeeded, the Artist/Album will be created, and the user will be redirected to the list of artists page.
+  - If the validation failed, messages with the instructions will appear in red above the Creation form and in each failed field.
+
+## User friendly datetime picker
+
+A user-friendly datetime picker was created in the Album creation form, in order to allow for an easy selection of the release date and time.
+![](result-images/2022-10-21-17-52-25.png)
+
+## Form validation
+
+Form validation is done by the django Form class which yields errors when the input is not valid. Another form validation is done by the developer such as checking whether the artist name being created exists or not (as shown in the left image below).
+
+|                  Artists                   |                   Albums                   |
+| :----------------------------------------: | :----------------------------------------: |
+| ![](result-images/2022-10-21-17-42-38.png) | ![](result-images/2022-10-21-17-44-02.png) |
+
+## Artist list page
+
+An artist list page was created to list all the artists along with the albums associated with each of them. A generic List View was used to first fetch the items, apply modification to the context, and consume the context in the template to view it accordingly.
+
+An efficient database query was performed to fetch all the artists with their albums using SQL join under the hood in only one query without having to loop over all the artists and fetch the albums for each one separately.
+
+```python
+def get_queryset(self):
+  # Selection with join
+  return \
+    Artist.objects.all().prefetch_related('album_set').order_by('id') \
+    .values('id', 'stage_name', 'social_link', 'album__id', 'album__album_name', 'album__created', 'album__released_at', 'album__cost')
+```
+
+Then, the entries returned from the database were modifed in order to create a dictionary with each key corresponding to each artist's stage_name with the value being a dictionary that includes the information of the artist along with an array of all of their albums, as in the following format.
+
+```python
+context = {
+  'STAGE_NAME1': {
+    'id': ARTIST_ID,
+    'social_link': ARTIST_SOCIAL_LINK,
+    'albums': [
+      {
+        'album__id': ALBUM_ID,
+        'album__album_name': ALBUM_NAME,
+        'album__created': ALBUM_CREATION_DATETIME,
+        'album__released_at': ALBUM_RELEASE_DATETIME,
+        'album__cost': ALBUM_COST,
+      },
+      ...
+    ]
+  },
+  'STAGE_NAME2': {},
+  ...
+}
+```
+
+That context is processed in and returned from the **get_context_data** method of the generic view. The template receives and parses it in order to display the artists data as follow:
+
+![](result-images/2022-10-21-18-11-00.png)
