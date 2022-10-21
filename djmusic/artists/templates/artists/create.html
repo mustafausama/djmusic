@@ -1,0 +1,14 @@
+{% if error %}
+<p style="color: red;"> <strong> {{ error }} </strong> </p>
+{% endif %}
+<form action="{% url 'artists:create' %}" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div>
+            <div style="color: red;">{{ field.errors }}</div>
+            {{ field.label_tag }}
+            {{ field }}
+        </div>
+    {% endfor %}    
+    <input type="submit" value="Submit">
+</form>

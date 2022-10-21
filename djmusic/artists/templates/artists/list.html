@@ -1,0 +1,24 @@
+<ul>
+{% for stage, value in artists_albums.items %}
+    <li><strong>id</strong>: {{ value.id }}</li>
+    <li><strong>Stage name</strong>: {{ stage }}</li>
+    <li><strong>Albums</strong>: 
+    {% if value.albums|length > 0 and value.albums.0.album__album_name %}
+      <ul>
+        {% for album in value.albums %}
+          <li><strong>id</strong>: {{album.album__id}} </li>
+          <li><strong>Name</strong>: {{album.album__album_name}}</li>
+          <li><strong>Creation Time</strong>: {{album.album__created|date:'SHORT_DATETIME_FORMAT'}}</li>
+          <li><strong>Release datetime</strong>: {{album.album__released_at|date:'SHORT_DATETIME_FORMAT'}}</li>
+          {% load humanize %}
+          <li><strong>Cost</strong>: ${{album.album__cost|intcomma}}</li>
+          {% if value.albums|length > forloop.counter %}<li>---</li>{% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+    No albums
+    {% endif %}
+    </li>
+    {% if artists_albums.items|length > forloop.counter %}<li>---</li>{% endif %}
+{% endfor %}
+</ul>
