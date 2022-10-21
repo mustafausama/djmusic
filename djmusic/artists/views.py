@@ -49,6 +49,5 @@ class ArtistList(generic.ListView):
       organized_data[entry['stage_name']]['albums'].append(entry)
     
     context['artists_albums'] = organized_data
-    print(context['artists_albums'])
     return context
     
