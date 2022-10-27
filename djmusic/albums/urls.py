@@ -4,5 +4,5 @@ from . import views
 app_name = 'albums'
 
 urlpatterns = [
-  path('create/', views.create_album.as_view(), name='create')
+  path('create/', views.create_album_form.as_view(), name='create')
 ]

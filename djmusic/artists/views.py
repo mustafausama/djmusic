@@ -1,34 +1,31 @@
-from django.shortcuts import redirect, render
-
+from django.urls import reverse_lazy
 from .forms import CreateArtistForm
 from .models import Artist
-from django.views import generic, View
+from django.views.generic import ListView
+from django.views.generic.edit import FormView
 
-class create_artist(View):
-  def get(self, request):
-    form = CreateArtistForm()
-    return render(request, 'artists/create.html', {'form': form})
+class create_artist(FormView):
+  
+  form_class = CreateArtistForm
+  template_name = 'artists/create.html'
+  success_url = reverse_lazy('artists:list')
 
-  def post(self, request):
-    error = None
-    form = CreateArtistForm(request.POST)
-    
-    if form.is_valid():
-      
+  def form_valid(self, form):
       if Artist.objects.filter(stage_name=form.cleaned_data['stage_name']).exists():
         form.add_error('stage_name', 'Stage name already exists')
         error = 'Data Error: Please follow the instructions'
+        return super().render_to_response({'error': error, 'form': form})
       else:
         new_artits = Artist(stage_name=form.cleaned_data['stage_name'], social_link=form.cleaned_data['social_link'])
         new_artits.save()
+        return super().form_valid(form);
 
-        return redirect('artists:list')
-    else:
-      error = 'Filling Error: Please fill all the required fields correctly'
-      
-    return render(request, 'artists/create.html', {'form': form, 'error': error})
+  def form_invalid(self, form):
+    error = 'Filling Error: Please fill all the required fields correctly'
+    return super().render_to_response({'error': error, 'form': form})
 
-class ArtistList(generic.ListView):
+
+class ArtistList(ListView):
   context_object_name = 'artists_albums'
   template_name = 'artists/list.html'
   
