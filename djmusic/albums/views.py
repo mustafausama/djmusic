@@ -1,11 +1,16 @@
 from django.shortcuts import redirect, render
+from django.views import View
 
 from .models import Album
 from .forms import CreateAlbumForm
 
-def create_album(request):
-  error = None
-  if request.method == 'POST':
+class create_album(View):
+  def get(self, request):
+    form = CreateAlbumForm()
+    return render(request, 'albums/create.html', {'form': form})
+  
+  def post(self, request):
+    error = None
     form = CreateAlbumForm(request.POST)
     
     if form.is_valid():
@@ -14,8 +19,4 @@ def create_album(request):
       return redirect('artists:list')
     else:
       error = 'Filling Error: Please fill all the required fields correctly'
-  
-  else:
-    form = CreateAlbumForm()
-  
-  return render(request, 'albums/create.html', {'form': form, 'error': error})
+    return render(request, 'albums/create.html', {'form': form, 'error': error})

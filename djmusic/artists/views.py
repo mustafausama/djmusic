@@ -2,30 +2,31 @@ from django.shortcuts import redirect, render
 
 from .forms import CreateArtistForm
 from .models import Artist
-from django.views import generic
+from django.views import generic, View
 
-def create_artist(request):
-  error = None
-  if request.method == 'POST':
+class create_artist(View):
+  def get(self, request):
+    form = CreateArtistForm()
+    return render(request, 'artists/create.html', {'form': form})
+
+  def post(self, request):
+    error = None
     form = CreateArtistForm(request.POST)
     
     if form.is_valid():
-
+      
       if Artist.objects.filter(stage_name=form.cleaned_data['stage_name']).exists():
         form.add_error('stage_name', 'Stage name already exists')
         error = 'Data Error: Please follow the instructions'
       else:
         new_artits = Artist(stage_name=form.cleaned_data['stage_name'], social_link=form.cleaned_data['social_link'])
         new_artits.save()
-      
+
         return redirect('artists:list')
     else:
       error = 'Filling Error: Please fill all the required fields correctly'
-  
-  else:
-    form = CreateArtistForm()
-  
-  return render(request, 'artists/create.html', {'form': form, 'error': error})
+      
+    return render(request, 'artists/create.html', {'form': form, 'error': error})
 
 class ArtistList(generic.ListView):
   context_object_name = 'artists_albums'
