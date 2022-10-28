@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import messages
 from django.contrib import admin
 from django.utils.translation import ngettext
-from albums.models import Album
+from albums.models import Album, Song
 from django.utils.translation import gettext_lazy as _
 
 class AlbumForm(forms.ModelForm):
@@ -12,6 +12,15 @@ class AlbumForm(forms.ModelForm):
     help_texts = {
       'is_approved': _('Approve the album if its name is not explicit')
     }
+
+class SongForm(forms.ModelForm):
+  class Meta:
+    model = Song
+    exclude = []
+    help_texts = {
+      'name': _('If left blank, name will default to album name')
+    }
+
 
 @admin.register(Album)
 class AlbumAdmin(admin.ModelAdmin):
@@ -31,3 +40,12 @@ class AlbumAdmin(admin.ModelAdmin):
     self.message_user(request, ngettext(
       "%d album was successfully approved",
       "%d albums were successfully approved", updated) % updated, messages.SUCCESS)
+
+
+@admin.register(Song)
+class SongAdmin(admin.ModelAdmin):
+  form = SongForm
+
+  list_display = ('name', 'image_tag', 'album')
+  fields = ('album', 'name', ('image', 'image_tag'), ('audio', 'audio_tag'))
+  readonly_fields = ('image_tag', 'audio_tag')
