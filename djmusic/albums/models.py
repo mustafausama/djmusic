@@ -24,9 +24,16 @@ class Album(TimeStampedModel):
 class SongDeleteQuerySet(models.QuerySet):
   def delete(self, *args, **kwargs):
     error = []
+    album_songs = {}
     for obj in self:
-      if(obj.album.song_set.count() == 1):
-        error.append(str('Cannot delete the song ' + obj.name + ' because it is the only one belonging to the album ' + obj.album.album_name))
+      album_name = obj.album.album_name
+      song_count = obj.album.song_set.count()
+      if album_name not in album_songs.keys():
+        album_songs[album_name] = song_count
+      album_songs[album_name] -= 1
+
+      if(album_songs[album_name] == 0):
+        error.append(str('Cannot delete the song ' + obj.name + ' because that would result in the album ' + obj.album.album_name) + ' being empty')
     if len(error) > 0:
       print(error)
       raise Exception(error)
