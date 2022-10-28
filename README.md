@@ -129,3 +129,9 @@ Artists and albums can be created using the following links, repectively.
 A list view of the artists and their respective albums can be viewed using the following link.
 
 **List View**: [http://localhost:8000/artists/](http://localhost:8000/artists/)
+
+
+### Login and logout
+Using the following links, you can:
+- **Login**: [http://localhost:8000/accounts/login/](http://localhost:8000/accounts/login/)
+- **Logout**: [http://localhost:8000/accounts/logout/](http://localhost:8000/accounts/logout/)

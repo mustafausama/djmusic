@@ -4,7 +4,9 @@
 
 ## [Part 2](#second-part)
 
-## [Part 2](#third-part)
+## [Part 3](#third-part)
+
+## [Part 3](#fourth-part)
 
 <hr>
 
@@ -372,7 +374,7 @@ class ArtistAdmin(admin.ModelAdmin):
   ...
 ```
 
-# Second Part
+# Third Part
 
 In the third part of the application, two forms were added allowing the user to create artists and albums.
 A slight modification was done to the Album model in order to timestamp it.
@@ -462,3 +464,91 @@ context = {
 That context is processed in and returned from the **get_context_data** method of the generic view. The template receives and parses it in order to display the artists data as follow:
 
 ![](result-images/2022-10-21-18-11-00.png)
+
+
+# Fourth Part
+
+## Class-based views
+Album and Artist creation forms were converted to class-based views in order to make use of the FormView class. In the **CreateArtistView** and **CreatAlbumView** classes, the **form_valid** and **form_invalid** methods were used to validate and confirm the form.
+
+```python
+class Create_____View(FormView):
+  def form_valid(self, form):
+    ...
+
+  def form_invalid(self, form):
+    ...
+```
+
+
+## Login and logout
+A login view and a logout URL were added to the project's urls in order to allow for signing users in and out.
+```python
+urlpatterns = [
+    ...
+    path("accounts/login/", auth_views.LoginView.as_view(), name='login'),
+    path("accounts/logout/", auth_views.LogoutView.as_view(), name='logout')
+]
+```
+
+## Authorization
+Only authenticated users were allowed to access the creation forms for albums and artists. A **login_required** decorator was added for each of the form views to only allow for logged in users to use them.
+```python
+## albums/urls.py
+urlpatterns = [
+  path('create/', login_required(views.CreateAlbumView.as_view()), name='create')
+]
+
+## artists/urls.py
+urlpatterns = [
+  path('create/',  login_required(views.CreateArtistView.as_view()), name='create'),
+  ...
+]
+```
+
+## The album inline form was deleted from Artist admin form
+
+## Song model
+The song model was created as required to contain the fields:
+- **album**: foreign key to the album id
+- **name**: not required and if empty it would default to the album name
+- **image**: image field that is require not to be null
+- **image_thumbnail**: a processed version of the image to reduce its size to a thumbnail size
+  - **I agree that image_thumbnail is important because it caches the original image and optimizes the performance significantly**
+- **audio**: a file that has a validator to accept certain extensions
+
+The song model contains multiple methods for added features:
+- **save** (override): this method overrides the save method of the queryset to fill the song name with the album name if the song name is empty or not provided
+- **image_tag** and **audio_tag**: these two methods provide html tags for the thumbnail and the audio file to be visible and playable on the admin view
+- **delete** (override): this method overrides the **single** delete method in order to check whether the album has only one song or not and perform deletion if the later is true. It also performs file cleanup after deletion
+- **SongDeleteQuerySet.delete**: this overrides the default object manager to add the delete method for the bulk deletion to check for wether the album will have only one song after deletion or not and perform the deletion if the later is true. It also performs file cleanup after deletion
+- **validate_audio_file_extension**: this validator validates the uploaded file extension to only allow **.mp3** and **.wav**
+
+## Media files
+**MEDIA_ROOT** and **MEDIA_URL** configurations where added to the settings to allow for the media to be uploaded to and server from the specified file paths.
+```python
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+```
+They were also added to the site URLs to allow access to them by using the URL.
+```python
+urlpatterns = [
+  ...
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+The **media** directory was added to the **.gitignore** file
+
+## 1-or-more relationship
+A 1-or-more relationship was achieved between the Song and the Album models where each Album must have at least one song. That relationship was achieved by adding custom validations to the major aspects of the applications that deal with the albums and songs.  
+1. First, a custom SongInlineFormset was added to the custom inline of the Album modeladmin.
+2. A **clean** method was added to override the behavior of the formset.
+   - It does not allow creation of albums without added songs
+     ![](result-images/2022-10-28-15-19-22.png)
+   - It also does not allow deletion if the number of songs per the specific album will be zero.
+     ![](result-images/2022-10-28-15-18-50.png)
+3. The **delete_queryset** was overridden to expect an exception in bulk deletion and, accordingly, show error messages or confim deletion
+   ![](result-images/2022-10-28-15-22-47.png)
+4. The **delete_model** was overridden to expect an exception in single model deletion and, accordingly, show error message or confim deletion
+   The following message is shown after clicking the Delete button inside the **New song** view
+   ![](result-images/2022-10-28-15-23-38.png)
