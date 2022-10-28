@@ -1,21 +1,9 @@
 from django.contrib import admin
 from artists.models import Artist
-from albums.models import Album
-from albums.admin import AlbumForm
-
-class AlbumInline(admin.TabularInline):
-  model = Album
-  readonly_fields = ('created', 'modified')
-  extra = 0
-  form = AlbumForm
 
 
 @admin.register(Artist)
 class ArtistAdmin(admin.ModelAdmin):
-  
-  inlines = [
-    AlbumInline
-  ]
   
   list_display = ('stage_name', 'albums', 'approved_albums')
   
