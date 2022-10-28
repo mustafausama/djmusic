@@ -4,7 +4,7 @@ from django.views.generic.edit import FormView
 from .models import Album
 from .forms import CreateAlbumForm
 
-class create_album_form(FormView):
+class CreateAlbumView(FormView):
   
   form_class = CreateAlbumForm
   template_name = 'albums/create.html'

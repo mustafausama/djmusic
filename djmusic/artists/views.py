@@ -1,10 +1,12 @@
+from django.conf import settings
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .forms import CreateArtistForm
 from .models import Artist
 from django.views.generic import ListView
 from django.views.generic.edit import FormView
 
-class create_artist(FormView):
+class CreateArtistView(FormView):
   
   form_class = CreateArtistForm
   template_name = 'artists/create.html'
@@ -25,7 +27,7 @@ class create_artist(FormView):
     return super().render_to_response({'error': error, 'form': form})
 
 
-class ArtistList(ListView):
+class ArtistListView(ListView):
   context_object_name = 'artists_albums'
   template_name = 'artists/list.html'
   
