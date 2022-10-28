@@ -19,13 +19,33 @@ class Album(TimeStampedModel):
   
   def __str__(self):
     return self.album_name
-  
+
+
+class SongDeleteQuerySet(models.QuerySet):
+  def delete(self, *args, **kwargs):
+    error = []
+    for obj in self:
+      if(obj.album.song_set.count() == 1):
+        error.append(str('Cannot delete the song ' + obj.name + ' because it is the only one belonging to the album ' + obj.album.album_name))
+    if len(error) > 0:
+      print(error)
+      raise Exception(error)
+    super(SongDeleteQuerySet, self).delete(*args, **kwargs)
+
 class Song(TimeStampedModel):
+  objects = SongDeleteQuerySet.as_manager()
+  
   album = models.ForeignKey(Album, on_delete=models.CASCADE)
   name = models.CharField(max_length=200, null=True, blank=True)
-  image = models.ImageField(upload_to='song_images', null=False, blank=True)
+  image = models.ImageField(upload_to='song_images', null=False)
   image_thumbnail = ImageSpecField(source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60})
   audio = models.FileField(upload_to='song_audio', validators=[validate_audio_file_extension])
+  
+  
+  def delete(self, *args, **kwargs):
+    if(self.album.song_set.count() == 1):
+      raise Exception('Cannot delete the song ' + self.name + ' because it is the only one belonging to the album ' + self.album.album_name)
+    super(Song, self).delete(*args, **kwargs)
   
   # Default value of song is the album name
   def save(self, *args, **kwargs):
