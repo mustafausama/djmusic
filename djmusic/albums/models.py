@@ -37,6 +37,10 @@ class SongDeleteQuerySet(models.QuerySet):
     if len(error) > 0:
       print(error)
       raise Exception(error)
+    for obj in self:
+      obj.image.delete()
+      obj.audio.delete()
+      
     super(SongDeleteQuerySet, self).delete(*args, **kwargs)
 
 class Song(TimeStampedModel):
@@ -52,6 +56,8 @@ class Song(TimeStampedModel):
   def delete(self, *args, **kwargs):
     if(self.album.song_set.count() == 1):
       raise Exception('Cannot delete the song ' + self.name + ' because it is the only one belonging to the album ' + self.album.album_name)
+    self.image.delete()
+    self.audio.delete()
     super(Song, self).delete(*args, **kwargs)
   
   # Default value of song is the album name
