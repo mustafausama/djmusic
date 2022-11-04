@@ -6,9 +6,9 @@ from .models import Artist
 from django.views.generic import ListView
 from django.views.generic.edit import FormView
 from .serializers import ArtistSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+#from rest_framework.views import APIView
+#from rest_framework.response import Response
+#from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
 
