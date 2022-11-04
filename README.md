@@ -121,6 +121,8 @@ Now you can login using the credentials you created in the [previous section](#c
 Artists and albums can be created using the following links, repectively.
 
 **Artist**: [http://localhost:8000/artists/create/](http://localhost:8000/artists/create/)
+> Starting with the **fifth part**, the artist's view endpoints are followed by **/old/** because a serialized REST API view was linked to the original endpoint  
+  **List View**: [http://localhost:8000/artists/old/create/](http://localhost:8000/artists/old/create/)
 
 **Album**: [http://localhost:8000/albums/create/](http://localhost:8000/albums/create/)
 
@@ -129,9 +131,41 @@ Artists and albums can be created using the following links, repectively.
 A list view of the artists and their respective albums can be viewed using the following link.
 
 **List View**: [http://localhost:8000/artists/](http://localhost:8000/artists/)
+> Starting with the **fifth part**, the artist's view endpoints are followed by **/old/** because a serialized REST API view was linked to the original endpoint  
+  **List View**: [http://localhost:8000/artists/old/](http://localhost:8000/artists/old/)
 
 
 ### Login and logout
 Using the following links, you can:
 - **Login**: [http://localhost:8000/accounts/login/](http://localhost:8000/accounts/login/)
 - **Logout**: [http://localhost:8000/accounts/logout/](http://localhost:8000/accounts/logout/)
+
+### REST API
+Two rest-api endpoints were added to the application.
+- Artist View (JSON): **GET** [http://localhost:8000/artists/](http://localhost:8000/artists/)  
+  Data will be returned in the following format
+  ```javascript
+  [
+      {
+          "id": '<id>', // Numeric
+          "stage_name": "<stage_name>", // String
+          "social_link": "<social_link>" // String
+      },
+      ...
+  ]
+  ```
+- Artist Creation (JSON body): **POST** [http://localhost:8000/artists/](http://localhost:8000/artists/)
+  > Requires authentication as Basic Authentication (**username** and **password**) along with the request
+  
+  Requires a body with the following keys
+  - **stage_name**: required, unique, max length of 200 characters
+  - **social_link**: optional
+
+  Data will be returned in the following format
+  ```javascript
+  {
+      "id": '<id>', // Numeric
+      "stage_name": "<stage_name>", // String
+      "social_link": "<social_link>" // String
+  }
+  ```

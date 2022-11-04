@@ -6,7 +6,9 @@
 
 ## [Part 3](#third-part)
 
-## [Part 3](#fourth-part)
+## [Part 4](#fourth-part)
+
+## [Part 5](#fifth-part)
 
 <hr>
 
@@ -552,3 +554,90 @@ A 1-or-more relationship was achieved between the Song and the Album models wher
 4. The **delete_model** was overridden to expect an exception in single model deletion and, accordingly, show error message or confim deletion
    The following message is shown after clicking the Delete button inside the **New song** view
    ![](result-images/2022-10-28-15-23-38.png)
+
+# Fifth Part
+
+## REST APIs
+Django Rest Framework (DRF) was installed to allow for adding REST API views.  
+The `'rest_framework'` was added to the **INSTALLED_APPS** of `settings.py`
+
+## Serializer
+A ModelSerializer was used to add an abstraction layer to the create(), update(), and the validation methods.  
+The ArtistSerializer was associated with the Artist model.
+
+```python
+from rest_framework import serializers
+from .models import Artist
+
+class ArtistSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Artist
+    fields = ['id', 'stage_name', 'social_link']
+```
+
+## URLs
+The **urlpatterns** variable of the artists app was modified to add an /old/ endpoint to all the old views, and to associate the index endpoint to the REST API view.
+```python
+urlpatterns = [
+  path('', views.ArtistsView.as_view(), name='json_list'),
+  path('old/create/',  login_required(views.CreateArtistView.as_view()), name='create'),
+  path('old/', views.ArtistListView.as_view(), name='list')
+]
+```
+
+Also, a suffix format was added to allow for suffixes such as `.json` in the url.
+```python
+from rest_framework.urlpatterns import format_suffix_patterns
+urlpatterns = format_suffix_patterns(urlpatterns)
+```
+
+## REST API View
+A class-based rest_frameword generic ListCreateAPIView was used in order to add an abstraction to the **get** and **post** methods of the api.
+
+```python
+class ArtistsView(generics.ListCreateAPIView):
+  queryset = Artist.objects.all()
+  serializer_class = ArtistSerializer
+  # TODO: Authorization configuretion
+```
+
+* Using the REST API View
+  > Notice that, without logging in, the user can create artists using a POST request. This behavior will be restricted in the next section
+
+  ![](result-images/2022-11-04-12-48-29.png)
+* GET request Using Postman  
+  ![](result-images/2022-11-04-12-50-14.png)
+* POST request using Postman (without authorization)
+  ![](result-images/2022-11-04-12-51-46.png)
+* POST request using Postman (with validation error)
+  ![](result-images/2022-11-04-12-52-39.png)
+## Authentication
+An authentication-is-required feature was added to the artist creation endpoint (**POST** request) in order not to allow for unauthenticated users to create artists by adding **permission_classes** property to the **ArtistsView**. This will allow unauthenticated users to use the API's GET method, and only authenticated users to use the API's POST method.
+
+```python
+class ArtistsView(generics.ListCreateAPIView):
+  queryset = Artist.objects.all()
+  serializer_class = ArtistSerializer
+  permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+```
+
+* Using the REST API View
+  > Notice that the REST API view does not allow post request when the user is not logged in
+
+  ![](result-images/2022-11-04-12-54-00.png)
+
+* Using the REST API View
+  > Notice that the REST API view allows post request when the user is logged in
+
+  ![](result-images/2022-11-04-12-55-32.png)
+
+* Using Postman (without login)
+  > Notice that the response has a 403 status with the detail field being the authentication error details.
+
+  ![](result-images/2022-11-04-12-57-08.png)
+
+* Using Postman (with login)  
+  1. Using the username and password (basic auth) in the authorization header
+  ![](result-images/2022-11-04-12-57-40.png)
+  2. POST request works only with successful authorization
+  ![](result-images/2022-11-04-12-58-56.png)
