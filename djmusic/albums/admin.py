@@ -90,7 +90,5 @@ class SongAdmin(admin.ModelAdmin):
     try:
       super().delete_queryset(request, queryset)
     except Exception as e:
-      for err in e.args[0]:
-        print(err)
-        self.message_user(request, err, level=messages.ERROR)
       messages.set_level(request, messages.ERROR)
+      self.message_user(request, e, level=messages.ERROR)

@@ -549,8 +549,8 @@ A 1-or-more relationship was achieved between the Song and the Album models wher
      ![](result-images/2022-10-28-15-19-22.png)
    - It also does not allow deletion if the number of songs per the specific album will be zero.
      ![](result-images/2022-10-28-15-18-50.png)
-3. The **delete_queryset** was overridden to expect an exception in bulk deletion and, accordingly, show error messages or confim deletion
-   ![](result-images/2022-10-28-15-22-47.png)
+3. A **delete_queryset** was overridden to expect an exception in bulk deletion and, accordingly, show error messages or confim deletion. That exception is thrown by the **pre_delete** signal receiver which has the logic for checking wether the albums will have zero songs after deletion.
+   ![](result-images/2022-11-07-18-04-27.png)
 4. The **delete_model** was overridden to expect an exception in single model deletion and, accordingly, show error message or confim deletion
    The following message is shown after clicking the Delete button inside the **New song** view
    ![](result-images/2022-10-28-15-23-38.png)
