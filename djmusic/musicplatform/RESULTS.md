@@ -10,6 +10,8 @@
 
 ## [Part 5](#fifth-part)
 
+## [Part 6](#sixth-part)
+
 <hr>
 
 # First Part
@@ -641,3 +643,112 @@ class ArtistsView(generics.ListCreateAPIView):
   ![](result-images/2022-11-04-12-57-40.png)
   2. POST request works only with successful authorization
   ![](result-images/2022-11-04-12-58-56.png)
+
+# Sixth Part
+## Disabled authorization views/apps
+## Users app
+* A users app was created. It has a User model that overrides the **AbstractUser** model with an addition of one field **bio** which is an optional CharField with a max of 265 characters.
+* A custom **UserAdmin** model admin was used and registerd in the admin panel. That model admin uses a custom form **UserModelForm** to show the bio of the user in a textarea instead of a text input.
+  ```python
+  class UserModelForm(forms.ModelForm):
+    bio = forms.CharField(widget=forms.Textarea)
+    class Meta:
+        model = User
+        fields = '__all__'
+        exclude = ('password', 'last_login', 'date_joined')
+
+  class UserAdmin(admin.ModelAdmin):
+    form = UserModelForm
+
+  admin.site.register(User, UserAdmin)
+  ```
+  ![](result-images/2022-11-07-22-38-55.png)
+
+## Authentication app
+An authentication app was created. This app uses some functionality provided by **Django Rest Framework** and **Django Rest Knox**.
+
+## Registration
+A **RegisterSerializer** was created to verify and confirm registration via the api endpoint **/authentication/register/**.
+* The serializer accepts 4 fields: **Username** (required), **Email** (optional), **Password1** (required), **Password2** (required).
+  ![](result-images/2022-11-07-22-49-29.png)
+* The serializer, firstly, performs validation on each field separately.
+  - Username field has to be unique (not existing in the database)
+  - Email field, if provided, has to be unique (it does so by case insensitive comparison)
+    ![](result-images/2022-11-07-22-50-15.png)
+  - Password1 has to be strong
+    ![](result-images/2022-11-07-22-51-16.png)
+  - Password2 has to be provided
+* The serializer then performs overall validation to make sure that the two passwords match
+  ![](result-images/2022-11-07-22-51-48.png)
+* The serializer, finally, attempts to create a new user with the provided details (after lowecase-ing the email and hashing the password) and returns the created user.
+  ![](result-images/2022-11-07-22-52-13.png)
+
+A **RegisterView** was created. It inherits **CreateAPIView** generic view with **AllowAny** permission and association with the **RegisterSerializer**.
+```python
+class RegisterView(generics.CreateAPIView):
+  permission_classes = [permissions.AllowAny]
+  serializer_class = RegisterSerializer
+```
+
+## Login
+A **LoginView** was created. It inherits **knox.views.LoginView**. It only accepts **POST** requests at the endpoint **/authorization/login/**.
+* It uses the **AuthTokenSerializer** provided by Django Rest Framework to validate the POST request. It returns a respnse with the error, if any.
+  ![](result-images/2022-11-07-22-59-33.png)
+* It creates a user object with the user credentials and calls the login method provided by django.
+* It then creates and returns an object with the user token and the user details.
+  ![](result-images/2022-11-07-22-59-58.png)
+
+The knox token can be used afterwards in any request that required authorization.
+
+## Logout
+A **LogoutView** was created. It inherits **knox.views.LogoutView**. It only accepts **POST** requests at the endpoint **/authorization/login/**.  
+* It accepts an Authorization header with the token to be invalidated.
+* First, it validates the token, and it returns a response with the error, if any.
+  ![](result-images/2022-11-07-23-03-14.png)
+* If the token is correct, it responds with 204 No Content and it invalidates the token provided.
+  ![](result-images/2022-11-07-23-04-15.png)
+
+## User Details
+A **UserDetailView** was created. It inherits the DRF generic view **RetrieveUpdateAPIView**. It only accepts **GET**, **PUT**, and **PATCH** requests at the endpoint **/users/\<int:pk\>/**.  
+![](result-images/2022-11-07-23-07-37.png)
+
+By default, the **RetrieveUpdateAPIView** allows retrieving the entry with the primary key provided (user here) with **GET**, updating a single field with **PATCH**, and updating the whole entry with **PUT**.
+
+```python
+class UserDetailView(generics.RetrieveUpdateAPIView):
+  serializer_class = UserSerializer
+  queryset = User.objects.all()
+  permission_classes = [IsAuthenticatedOrReadOnly]
+```
+
+Since we need authorization in the case of updating, a custom permission **IsAuthenticatedOrReadOnly** was created to validate or invalidate the update request.
+The permission inherits the **BasePermission** of **DRF**. The permission passes all GET requests, and it allows PUT and PATCH requests only if the authenticated user is the user being updated.
+```python
+class IsAuthenticatedOrReadOnly(BasePermission):
+  AuthMethods = ['PUT', 'PATCH']
+  def has_permission(self, request, view):
+    if(request.method in self.AuthMethods):
+      if((not request.user) or
+        (not request.user.is_authenticated) or
+        (request.user.id != view.kwargs['pk'])):
+        return False
+
+    return True
+```
+
+* It allows retrieval of the provided user without authroization.
+  ![](result-images/2022-11-07-23-13-31.png)
+* It does not allow applying modifications on the user without authorization and without the API sender being the to-be-updated user theirselves.
+  ![](result-images/2022-11-07-23-16-00.png)
+* PUT request requires all the fields to update the whole user entry in the databse. It returns the updated user entry
+  ![](result-images/2022-11-07-23-16-47.png)
+* PATCH requests updates the fields provided and does not require any specific field. It returns the updated user entry.
+  ![](result-images/2022-11-07-23-17-44.png)
+
+## Default Authentication
+The knox TokenAuthentication was added to the defaul authentication classes in the beginning to allow it to work.
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
+}
+```

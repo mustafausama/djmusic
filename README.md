@@ -116,7 +116,8 @@ Now you can login using the credentials you created in the [previous section](#c
 
 ## App Usage
 
-### Creating Artists and Albums
+## Creating Artists and Albums
+> These Views do not work anymore after the sixth part
 
 Artists and albums can be created using the following links, repectively.
 
@@ -126,8 +127,8 @@ Artists and albums can be created using the following links, repectively.
 
 **Album**: [http://localhost:8000/albums/create/](http://localhost:8000/albums/create/)
 
-### Artist list view
-
+## Artist list view
+> These Views do not work anymore after the sixth part
 A list view of the artists and their respective albums can be viewed using the following link.
 
 **List View**: [http://localhost:8000/artists/](http://localhost:8000/artists/)
@@ -135,12 +136,13 @@ A list view of the artists and their respective albums can be viewed using the f
   **List View**: [http://localhost:8000/artists/old/](http://localhost:8000/artists/old/)
 
 
-### Login and logout
+## Login and logout
+> This View does not work anymore after the sixth part
 Using the following links, you can:
 - **Login**: [http://localhost:8000/accounts/login/](http://localhost:8000/accounts/login/)
 - **Logout**: [http://localhost:8000/accounts/logout/](http://localhost:8000/accounts/logout/)
 
-### REST API
+## REST API
 Two rest-api endpoints were added to the application.
 - Artist View (JSON): **GET** [http://localhost:8000/artists/](http://localhost:8000/artists/)  
   Data will be returned in the following format
@@ -169,3 +171,91 @@ Two rest-api endpoints were added to the application.
       "social_link": "<social_link>" // String
   }
   ```
+
+## Authentication
+- Register: **POST** [http://localhost:8000/authentication/register/](http://localhost:8000/authentication/register/)  
+  It accepts a body with the following fields
+  - **username**: required, unique
+  - **email**: optional, unique
+  - **password1**: require, strong password
+  - **password2**: matches password1
+
+  It returns a json with the following format
+  ```javascript
+  {
+    "username": "<username>",
+    "email": "<email>"
+  }
+  ```
+- Login: **POST** [http://localhost:8000/authentication/login/](http://localhost:8000/authentication/login/)  
+  It accepts a body with the following fields
+  - **username**: required
+  - **password**: required  
+
+  It returns a json with the following format
+  ```javascript
+  {
+    "token": "<knox token>",
+    "user": {
+      "id": '<id>', // Numeric
+      "username": "<username>",
+      "email": "<email>",
+      "bio": "<bio>"
+    }
+  }
+  ```
+- Logout: **POST** [http://localhost:8000/authentication/logout/](http://localhost:8000/authentication/logout/)  
+  It requires an authorization header with in the following format
+  > Authorization: Token *token_here*
+
+## User Details API
+- Retrieve User: **GET** [http://localhost:8000/users/<int:pk>/](http://localhost:8000/users/<int:pk>/)  
+  It returns a json with the following format
+  ```javascript
+  {
+    "id": '<id>',
+    "username": "<username>",
+    "email": "<email>",
+    "bio": "<bio>"
+  }
+  ```
+- Update the whole user: **PUT** [http://localhost:8000/authentication/login/](http://localhost:8000/authentication/login/)  
+  
+  It accepts a body with the following **required** fields
+  - **username**: required
+
+  It accepts a body with the following **optional** fields
+  - **email**
+  - **bio**
+  
+  It requires an authorization header with in the following format
+  > Authorization: Token *token_here*
+
+  It returns a json with the following format
+  ```javascript
+  {
+    "id": '<id>',
+    "username": "<username>",
+    "email": "<email>",
+    "bio": "<bio>"
+  }
+  ```
+- Update specific user fields: **PUT** [http://localhost:8000/authentication/login/](http://localhost:8000/authentication/login/)
+  It accepts a body with any (or all) the following **optional** fields
+  - **username**
+  - **email**
+  - **bio**
+
+  It requires an authorization header with in the following format
+  > Authorization: Token *token_here*
+
+  It returns a json with the following format
+  ```javascript
+  {
+    "id": '<id>',
+    "username": "<username>",
+    "email": "<email>",
+    "bio": "<bio>"
+  }
+  ```
+
