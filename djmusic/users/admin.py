@@ -8,7 +8,7 @@ class UserModelForm(forms.ModelForm):
     class Meta:
         model = User
         fields = '__all__'
-        exclude = ('password', )
+        exclude = ('password', 'last_login', 'date_joined')
 
 class UserAdmin(admin.ModelAdmin):
   form = UserModelForm
