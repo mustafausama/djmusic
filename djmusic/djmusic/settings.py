@@ -40,7 +40,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'artists',
-    'albums',
+    'albums.apps.AlbumsConfig',
+    'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,7 +49,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'imagekit',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken',
+    'django_extensions',
+    'knox'
 ]
 
 MIDDLEWARE = [
@@ -81,6 +85,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'djmusic.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
+}
+
+AUTH_USER_MODEL = 'users.User'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
