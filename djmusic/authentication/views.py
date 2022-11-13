@@ -4,8 +4,8 @@ from .serializers import RegisterSerializer
 from users.serializers import UserSerializer
 from knox.views import LoginView as KnoxLoginView, LogoutView as KnoxLogoutView
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from django.contrib.auth import login
-
+from django.contrib.auth import login, logout
+from django.http import HttpResponse
 class RegisterView(generics.CreateAPIView):
   permission_classes = [permissions.AllowAny]
   serializer_class = RegisterSerializer
@@ -26,7 +26,6 @@ class LoginView(KnoxLoginView):
     data = {
       'token': token
     }
-    print(UserSerializer)
     if UserSerializer is not None:
       data['user'] = UserSerializer(request.user, context=self.get_context()).data
     return data
@@ -35,4 +34,7 @@ class LoginView(KnoxLoginView):
     return UserSerializer
 
 class LogoutView(KnoxLogoutView):
-  pass
+  def post(self, request, format=None):
+    logout(request)
+    return HttpResponse(status=204)
+
