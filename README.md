@@ -93,6 +93,13 @@ In order to create a super user, run the following command and enter the credent
 poetry run python djmusic/manage.py createsuperuser
 ```
 
+### Running tests
+In order to run the created endpoint tests, run the following command
+```console
+poetry run pytest
+```
+A message with the testing result, percentage, passing tests, and time will be printed.
+
 ### Running the server
 
 Run the following comman to start serving the application
