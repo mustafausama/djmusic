@@ -1,5 +1,26 @@
 # Django application for managing artists and their related albums
 
+## Index 
+- [Demo application](#demo-application)
+- [Results documentation](#results-documentation)
+- [App installation](#app-installation)
+  - [Prerequites](#prerequites)
+  - [Clone](#clone)
+  - [Virtual Environment](#virtual-environment)
+  - [Install](#install)
+  - [Configurations](#configurations)
+  - [Migrations](#migrations)
+  - [Create a superuser](#create-a-superuser)
+  - [Running tests](#running-tests)
+  - [Running the server](#running-the-server)
+- [App Usage](#app-usage)
+  - [Creating Artists and Albums](#creating-artists-and-albums)
+  - [Artist list view](#artist-list-view)
+  - [Login and logout](#login-and-logout)
+  - [REST API](#rest-api)
+  - [Authentication](#authentication)
+  - [User Details API](#user-details-api)
+
 ## Demo application
 
 **Demo application has the second part only**
