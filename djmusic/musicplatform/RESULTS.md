@@ -12,6 +12,8 @@
 
 ## [Part 6](#sixth-part)
 
+## [Part 7](#seventh-part)
+
 <hr>
 
 # First Part
@@ -752,3 +754,65 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
 }
 ```
+
+# Seventh Part
+## Pytest configurations
+First, pytest configurations were writtem in **pytest.ini** file.
+```ini
+[pytest]
+DJANGO_SETTINGS_MODULE = djmusic.settings
+python_files = test_*.py *_tests.py
+pythonpath = djmusic
+filterwarnings = ignore::DeprecationWarning
+```
+- **DJANGO_SETTINGS_MODULE** tells pytest where to find the django settings for testing
+- **python_files** tells pytest the file name pattern to look for
+- **pythonpath** tells pytest the directory it should make the python path in (djmusic/ directory here)
+- **filterwarnings** tells pytest to filter out some warnings (deprecation warnings here)
+
+## Users app testing
+### Fixtures
+Two fixtures were created in the **conftest.py** file of the Users app.
+- **auth_client** fixture provides a function that receives a user instance or None and returned an APIClient authenticated with the provided instance or unauthneticated
+- **create_users** fixture provides a function that receives a number (or defaults to 3), does n-user bulk creation with the random values and returns the created users.
+
+### Test Cases
+Many test cases were created to test the overall functionality of the Users app.
+- **test_unauthenticated_user_view** tests that the user view should respond with a user data the correspond to the specified user id in the url
+- **test_unauthorized_user_update** tests that any guest or any user (other than the user in the id parameter) should never be able to update the user with the specified id in the url
+- **test_authorized_user_update** tests that only the user with the id paramter should be able to update its own details.
+- **test_invalid_user_update** tests that the user cannot update its details with invalid details (e.g. invalid email)
+- **test_incomplete_user_update** tests that a **PUT** request requires all the critical user details (as a put request requires all the fields to be updated unlike a patch request that strictly requires no fields)
+
+## Authentication app testing
+### Fixtures
+Two fixtures were created in the **conftest.py** file of the Authentication app.
+- **auth_client** fixture provides a function that receives a user instance or None and returned an APIClient authenticated with the provided instance or unauthneticated
+- **create_users** fixture provides a function that receives a number (or defaults to 3), does n-user bulk creation with the random values and returns the created users.
+
+### Test Cases
+Many test cases were created to test the overall functionality of the Authentication app.
+- **test_user_register_with_insufficient_fields** tests that any guest cannot register without the 3 required fields (username, password1, password2)
+- **test_user_register_with_invalid_details** tests that any guest cannot register with a username that is already taken, an email, if provided, that is already taken, or a weak password.
+- **test_user_register_with_no_second_password** tests that any guest cannot register without providing the password2 field
+- **test_user_register_with_no_matching_password** tests that any guest cannot register wihtout providing a matching password2 field to the password1 field.
+- **test_user_register_correctly** tests that any guest should be able to register, if provided correct fields, and have a response with its user instance details.
+- **test_user_login_incomplete_credentials** tests that any guest cannot login without the 3 required fields (username, password)
+- **test_user_login_invalid_credentials** tests that any gues cannot login with invalid credentials
+- **test_user_login_correctly** tests that any guest should be able to login, if provided correct fields, and have a response with its token and user instance details.
+- **test_user_logout_incomplete** tests that any guest cannot logout wihtout providing their token.
+- **test_user_logout_correctly** tests that any guest can logout, if provided correct token, and receive a 204 No Content response.
+
+## Artists app testing
+### Fixtures
+Two fixtures were created in the **conftest.py** file of the Artists app.
+- **auth_client** fixture provides a function that receives a user instance or None and returned an APIClient authenticated with the provided instance or unauthneticated
+- **create_artists** fixture provides a function that receives a number (or defaults to 3), does n-artist bulk creation with the random values and returns the created artists.
+
+### Test Cases
+- **test_artists_view** tests that the artist view returns a list of all the artists in the database.
+
+## Running tests
+After running `poetry run pytest`, the following result was printed.
+
+> ![](result-images/2022-11-13-17-29-52.png)

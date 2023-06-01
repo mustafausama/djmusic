@@ -1,5 +1,26 @@
 # Django application for managing artists and their related albums
 
+## Index 
+- [Demo application](#demo-application)
+- [Results documentation](#results-documentation)
+- [App installation](#app-installation)
+  - [Prerequites](#prerequites)
+  - [Clone](#clone)
+  - [Virtual Environment](#virtual-environment)
+  - [Install](#install)
+  - [Configurations](#configurations)
+  - [Migrations](#migrations)
+  - [Create a superuser](#create-a-superuser)
+  - [Running tests](#running-tests)
+  - [Running the server](#running-the-server)
+- [App Usage](#app-usage)
+  - [Creating Artists and Albums](#creating-artists-and-albums)
+  - [Artist list view](#artist-list-view)
+  - [Login and logout](#login-and-logout)
+  - [REST API](#rest-api)
+  - [Authentication](#authentication)
+  - [User Details API](#user-details-api)
+
 ## Demo application
 
 **Demo application has the second part only**
@@ -92,6 +113,13 @@ In order to create a super user, run the following command and enter the credent
 ```console
 poetry run python djmusic/manage.py createsuperuser
 ```
+
+### Running tests
+In order to run the created endpoint tests, run the following command
+```console
+poetry run pytest
+```
+A message with the testing result, percentage, passing tests, and time will be printed.
 
 ### Running the server
 
